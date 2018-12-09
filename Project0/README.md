@@ -1,6 +1,5 @@
 # [Project 0: Unix/Python/Autograder Tutorial](http://ai.berkeley.edu/tutorial.html)
-  
-===
+
 ## Introduction
 
 The projects for this class assume you use `Python 2.7`.  
@@ -27,10 +26,10 @@ You are not alone! If you find yourself stuck on something, contact the course s
 ##### Discussion: 
 Please be careful not to post spoilers.
 
-===
+
 ## Unix Basics
 Here are basic commands to navigate UNIX and edit files.  
-
+  
 ### File/Directory Manipulation
 When you open a terminal window, you're placed at a command prompt:  
 `[cs188-ta@nova ~]$`  
@@ -83,11 +82,11 @@ shopTest.py
 ### The Emacs text editor
 omitted  
   
-===
+
 ## Python Basics
 omitted
 
-===
+
 ## Autograding
 To get you familiarized with the autograder, we will ask you to code, test, and submit solutions for three questions.  
   
@@ -210,7 +209,7 @@ For each of the three questions, this shows the results of that question's tests
   
 Looking at the results for question 1, you can see that it has failed three tests with the error message "add(a,b) must return the sum of a and b". The answer your code gives is always 0, but the correct answer is different. We'll fix that in the next tab.  
 
-===
+
 ## Question 1: Addition
 Open `addition.py` and look at the definition of `add`:
 ```python
@@ -221,7 +220,7 @@ def add(a, b):
 ```  
   
 The tests called this with a and b set to different values, but the code always returned zero. Modify this definition to read:  
-```
+```python
 def add(a, b):
     "Return the sum of a and b"
     print "Passed a=%s and b=%s, returning a+b=%s" % (a,b,a+b)
@@ -276,7 +275,6 @@ Question q1
 ### Question q1: 1/1 ###
 ```  
 
-===
 ## Question 2: buyLotsOfFruit function
 Add a `buyLotsOfFruit`(orderList) function to `buyLotsOfFruit.py` which takes a list of (fruit,pound) tuples and returns the cost of your list. If there is some fruit in the list which doesn't appear in `fruitPrices` it should print an error message and return None. Please do not change the `fruitPrices` variable.  
   
