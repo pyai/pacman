@@ -211,7 +211,6 @@ Looking at the results for question 1, you can see that it has failed three test
 
 
 ## Question 1: Addition
-===
 Open `addition.py` and look at the definition of `add`:
 ```python
 def add(a, b):
@@ -277,7 +276,6 @@ Question q1
 ```  
 
 ## Question 2: buyLotsOfFruit function
-===
 Add a `buyLotsOfFruit`(orderList) function to `buyLotsOfFruit.py` which takes a list of (fruit,pound) tuples and returns the cost of your list. If there is some fruit in the list which doesn't appear in `fruitPrices` it should print an error message and return None. Please do not change the `fruitPrices` variable.  
   
 Run `python autograder.py` until question 2 passes all tests and you get full marks. Each test will confirm that buyLotsOfFruit(orderList) returns the correct answer given various possible inputs. For example, `test_cases/q2/food_price1.test` tests whether:  
