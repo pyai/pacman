@@ -33,6 +33,14 @@ def buyLotsOfFruit(orderList):
     Returns cost of order
     """
     totalCost = 0.0
+    for fruit, weight in orderList:
+        if fruit in fruitPrices:
+            totalCost += fruitPrices[fruit]*weight
+        else:
+            print("fruit not in fruitPrices")
+            return None
+    return totalCost
+
     "*** YOUR CODE HERE ***"
     return totalCost
 
