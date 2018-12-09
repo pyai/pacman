@@ -1,6 +1,6 @@
 # [Project 0: Unix/Python/Autograder Tutorial](http://ai.berkeley.edu/tutorial.html)
-  
 ===
+
 ## Introduction
 
 The projects for this class assume you use `Python 2.7`.  
@@ -27,10 +27,11 @@ You are not alone! If you find yourself stuck on something, contact the course s
 ##### Discussion: 
 Please be careful not to post spoilers.
 
-===
-## Unix Basics
-Here are basic commands to navigate UNIX and edit files.  
 
+## Unix Basics
+===
+Here are basic commands to navigate UNIX and edit files.  
+  
 ### File/Directory Manipulation
 When you open a terminal window, you're placed at a command prompt:  
 `[cs188-ta@nova ~]$`  
@@ -83,12 +84,14 @@ shopTest.py
 ### The Emacs text editor
 omitted  
   
-===
+
 ## Python Basics
+===
 omitted
 
-===
+
 ## Autograding
+===  
 To get you familiarized with the autograder, we will ask you to code, test, and submit solutions for three questions.  
   
 You can download all of the files associated the autograder tutorial as a zip archive: [tutorial.zip](http://ai.berkeley.edu/projects/release/tutorial/v1/001/tutorial.zip) (note this is different from the zip file used in the UNIX and Python mini-tutorials, python_basics.zip). Unzip this file and examine its contents:  
@@ -210,8 +213,9 @@ For each of the three questions, this shows the results of that question's tests
   
 Looking at the results for question 1, you can see that it has failed three tests with the error message "add(a,b) must return the sum of a and b". The answer your code gives is always 0, but the correct answer is different. We'll fix that in the next tab.  
 
-===
+
 ## Question 1: Addition
+===
 Open `addition.py` and look at the definition of `add`:
 ```python
 def add(a, b):
@@ -221,7 +225,7 @@ def add(a, b):
 ```  
   
 The tests called this with a and b set to different values, but the code always returned zero. Modify this definition to read:  
-```
+```python
 def add(a, b):
     "Return the sum of a and b"
     print "Passed a=%s and b=%s, returning a+b=%s" % (a,b,a+b)
@@ -276,8 +280,8 @@ Question q1
 ### Question q1: 1/1 ###
 ```  
 
-===
 ## Question 2: buyLotsOfFruit function
+===
 Add a `buyLotsOfFruit`(orderList) function to `buyLotsOfFruit.py` which takes a list of (fruit,pound) tuples and returns the cost of your list. If there is some fruit in the list which doesn't appear in `fruitPrices` it should print an error message and return None. Please do not change the `fruitPrices` variable.  
   
 Run `python autograder.py` until question 2 passes all tests and you get full marks. Each test will confirm that buyLotsOfFruit(orderList) returns the correct answer given various possible inputs. For example, `test_cases/q2/food_price1.test` tests whether:  
