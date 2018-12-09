@@ -1,5 +1,4 @@
 # [Project 0: Unix/Python/Autograder Tutorial](http://ai.berkeley.edu/tutorial.html)
-===
 
 ## Introduction
 
@@ -29,7 +28,6 @@ Please be careful not to post spoilers.
 
 
 ## Unix Basics
-===
 Here are basic commands to navigate UNIX and edit files.  
   
 ### File/Directory Manipulation
@@ -86,12 +84,10 @@ omitted
   
 
 ## Python Basics
-===
 omitted
 
 
 ## Autograding
-===  
 To get you familiarized with the autograder, we will ask you to code, test, and submit solutions for three questions.  
   
 You can download all of the files associated the autograder tutorial as a zip archive: [tutorial.zip](http://ai.berkeley.edu/projects/release/tutorial/v1/001/tutorial.zip) (note this is different from the zip file used in the UNIX and Python mini-tutorials, python_basics.zip). Unzip this file and examine its contents:  
