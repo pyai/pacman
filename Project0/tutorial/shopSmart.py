@@ -28,8 +28,16 @@ def shopSmart(orderList, fruitShops):
         orderList: List of (fruit, numPound) tuples
         fruitShops: List of FruitShops
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    
+    # p = list()
+    p = dict()
+    for s in fruitShops:
+        # p.append( (s.getPriceOfOrder(orderList), s) )
+        p[s] = s.getPriceOfOrder(orderList)
+    else:
+        print(p)
+        p_ = sorted(p, key = p.get)
+    return p_[0] 
 
 if __name__ == '__main__':
   "This code runs when you invoke the script from the command line"

@@ -33,7 +33,11 @@ def buyLotsOfFruit(orderList):
     Returns cost of order
     """
     totalCost = 0.0
-    "*** YOUR CODE HERE ***"
+    for f, p in orderList:
+        if f not in fruitPrices:
+            print "Error"
+        totalCost += fruitPrices[f] * p 
+        
     return totalCost
 
 # Main Method
