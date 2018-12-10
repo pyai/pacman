@@ -123,7 +123,6 @@ def depthFirstSearch(problem):
         action = [ _[1] for _ in trace.list]
         # dump first acton None of start point
         action = action[1:]
-    print action
 
     #util.raiseNotDefined()
     return action
