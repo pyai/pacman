@@ -87,7 +87,70 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from game import Directions
+    n = Directions.NORTH
+    e = Directions.EAST
+    w = Directions.WEST
+    s = Directions.SOUTH
+    
+    stack = util.Stack()
+    trace = util.Stack()
+    blocked = set()
+    action = list()
+
+    x = 0
+    state = (problem.getStartState(), None, None, None)
+    trace.push(state) # some times fork happen at start point
+
+    while not problem.isGoalState(state[0]):
+        #print "=================="
+        #print "step: ", x
+
+        node, act, cost, parent = state
+        child = problem.getSuccessors(node)
+        #print "node:", node
+
+
+        child = [ _ + (node, ) for _ in child ] # add parent information
+        child = [ _ for _ in child if _[0] != parent and (_[0], node) not in blocked and _ not in trace.list ] # remove parent(repeated) node in child
+        #print "child:", child
+
+        if not child: # if child is empty, back trace
+            fork = stack.list[-1]
+            back = trace.list[-1]
+            while fork[3] != back[0]: # fork's parent is the start point of fork
+                back = trace.pop()
+                blocked.add((back[0],  back[3]))
+                back = trace.list[-1]
+
+
+        else:
+            [ stack.push(_) for _ in child ] # push child into stack
+
+                
+
+        # explore one step ahead 
+        state = stack.pop()
+        trace.push(state)
+        
+
+        x += 1
+        #print "***"
+        #print "trace:"
+        #print trace.list
+        #print "blocked:"
+        #print blocked       
+        #print "=================="
+        
+
+    else:
+        action = [ _[1] for _ in trace.list]
+        # dump first acton None of start point
+        action = action[1:]
+    print action
+
+    #util.raiseNotDefined()
+    return action
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
