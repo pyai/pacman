@@ -127,6 +127,56 @@ def depthFirstSearch(problem):
     #util.raiseNotDefined()
     return action
 
+
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    """
+    "*** YOUR CODE HERE ***"
+    from game import Directions
+    stack = util.Stack()
+    trace = util.Stack()
+    explored = set()
+
+
+    state = (problem.getStartState(), None, 0, None)
+
+    while not problem.isGoalState(state[0]):
+        node, act, cost, parent = state
+        child = problem.getSuccessors(node)
+        ancestor = [ _[0] for _ in trace.list]
+
+        child = [ _ + (node,) for _ in child ] # add parent 
+        child = [ _ for _ in child if _[0] not in ancestor and _[0] not in explored] # remove parent(repeated) node in child
+
+        if not child: # if child is empty, back trace
+            explored.add(node)
+            state = trace.pop()
+        else:
+            trace.push(state)
+            [ stack.push(_) for _ in child ] # push child into stack
+            state = stack.pop()
+
+
+    else:
+        trace.push(state)
+        action = [ _[1] for _ in trace.list]
+        # dump first acton None of start point
+        action = action[1:]
+
+    #util.raiseNotDefined()
+    return action
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
