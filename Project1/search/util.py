@@ -672,3 +672,18 @@ def unmutePrint():
     sys.stdout = _ORIGINAL_STDOUT
     #sys.stderr = _ORIGINAL_STDERR
 
+class Node:
+    def __init__(self, state = None, action = None, cost = None):
+        self.parent = None
+        self.state = state
+        self.action = action
+        self.cost = cost
+
+    def trace_action(self):
+        actions = []
+        n = self
+        while not n.parent is None:
+            if not n.action is None:
+                actions.append(n.action)
+            n = n.parent
+        return actions[::-1]

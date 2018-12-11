@@ -87,38 +87,33 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    record = {'actions':[], 'states':[]}
-
     explored_set = set()
     stack = util.Stack()
-    cur_state = problem.getStartState()
-    stack.push((cur_state, None))
+    node = util.Node(problem.getStartState(), None, None)
+    stack.push(node)
 
 
     while not stack.isEmpty():
         
-        explored_set.add(cur_state)
-        if problem.isGoalState(cur_state):
+        explored_set.add(node.state)
+        if problem.isGoalState(node.state):
             # print record['actions']
-            return record['actions'][1:]
+            return node.trace_action()
 
 
-        cur_state, cur_action = stack.pop()
-        while not stack.isEmpty() and cur_state in explored_set:
-            cur_state, cur_action = stack.pop()
+        node = stack.pop()
+        while not stack.isEmpty() and node.state in explored_set:
+            node = stack.pop()
 
         # print('cur_state:{}'.format(cur_state))
-        while record['states'] and util.manhattanDistance(record['states'][-1], cur_state) > 1:
-            del record['states'][-1]
-            del record['actions'][-1]
         # print('record_action:{}'.format(record['actions']))
         # print('record_state:{}'.format(record['states']))
 
-        successors = problem.getSuccessors(cur_state)
-        record['states'].append(cur_state)
-        record['actions'].append(cur_action)
-        for s, a, _ in successors:
-            stack.push((s,a))
+        successors = problem.getSuccessors(node.state)
+        for s, a, c in successors:
+            n = util.Node(s, a, c)
+            n.parent = node
+            stack.push(n)
 
     return None
     # util.raiseNotDefined()
