@@ -87,27 +87,21 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+
     explored_set = set()
     stack = util.Stack()
     node = util.Node(problem.getStartState(), None, None)
     stack.push(node)
 
-
     while not stack.isEmpty():
-        
-        explored_set.add(node.state)
-        if problem.isGoalState(node.state):
-            # print record['actions']
-            return node.trace_action()
-
 
         node = stack.pop()
         while not stack.isEmpty() and node.state in explored_set:
             node = stack.pop()
 
-        # print('cur_state:{}'.format(cur_state))
-        # print('record_action:{}'.format(record['actions']))
-        # print('record_state:{}'.format(record['states']))
+        explored_set.add(node.state)
+        if problem.isGoalState(node.state):
+            return node.trace_action()
 
         successors = problem.getSuccessors(node.state)
         for s, a, c in successors:
@@ -121,13 +115,58 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored_set = set()
+    queue = util.Queue()
+    node = util.Node(problem.getStartState(), None, None)
+    queue.push(node)
+
+    while not queue.isEmpty():
+        
+        node = queue.pop()
+        while not queue.isEmpty() and node.state in explored_set:
+            node = queue.pop()
+
+        explored_set.add(node.state)
+        if problem.isGoalState(node.state):
+            return node.trace_action()
+
+        successors = problem.getSuccessors(node.state)
+        for s, a, _ in successors:
+            n = util.Node(s, a, _)
+            n.parent = node
+            queue.push(n)
+
+    return None
+    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored_set = set()
+    queue = util.PriorityQueue()
+    node = util.Node(problem.getStartState(), None, 0)
+    queue.push(node, priority=node.cost)
 
+    while not queue.isEmpty():
+        
+        node = queue.pop()
+        while not queue.isEmpty() and node.state in explored_set:
+            node = queue.pop()
+        
+        explored_set.add(node.state)
+        if problem.isGoalState(node.state):
+            return node.trace_action()
+
+        successors = problem.getSuccessors(node.state)
+        for s, a, c in successors:
+            n = util.Node(s, a, c+node.cost) # cost equals to c + parent's cost 
+            n.parent = node
+            queue.push(n, priority=n.cost)
+
+    return None
+    # util.raiseNotDefined()
+
+    
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
