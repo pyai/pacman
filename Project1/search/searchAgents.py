@@ -288,6 +288,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.costFn = lambda x:1
 
     def getStartState(self):
         """
@@ -295,14 +296,19 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        start_state = self.startingPosition+(0,0,0,0)
+        return self.set_state(start_state)
+
+        # util.raiseNotDefined()
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        isGoal = state[2:] == (1,1,1,1)
+        return isGoal
+        # util.raiseNotDefined()
 
     def getSuccessors(self, state):
         """
@@ -314,7 +320,6 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -325,6 +330,13 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state[:2]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = self.set_state( (nextx, nexty)+state[2:] )
+                cost = self.costFn(nextState)
+                successors.append( ( nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -342,6 +354,22 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+    def set_state(self, state):
+        xy, corner_state = state[:2], list(state[2:])
+        if xy == self.corners[0]:
+            corner_state[0] = 1
+        elif xy == self.corners[1]:
+            corner_state[1] = 1
+        elif xy == self.corners[2]:
+            corner_state[2] = 1
+        elif xy == self.corners[3]:
+            corner_state[3] = 1
+        return xy+tuple(corner_state)
+
+    # @property
+    # def _numCornerAchieve(self):
+    #     print self._cornerAchieve
+    #     return len(self._cornerAchieve)
 
 def cornersHeuristic(state, problem):
     """
@@ -360,7 +388,56 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # return 0 # for ucs
+    xy, corner_state = state[:2], state[2:]
+
+    h1 = util.manhattanDistance(xy, corners[0])*(corner_state[0]^1)
+    h2 = util.manhattanDistance(xy, corners[1])*(corner_state[1]^1)
+    h3 = util.manhattanDistance(xy, corners[2])*(corner_state[2]^1)
+    h4 = util.manhattanDistance(xy, corners[3])*(corner_state[3]^1)
+
+    maze_height = util.manhattanDistance(corners[0], corners[1])
+    maze_width  = util.manhattanDistance(corners[0], corners[2])
+    
+    # print util.manhattanDistance(corners[0], corners[1])
+    # print util.manhattanDistance(corners[1], corners[2])
+    # print util.manhattanDistance(corners[2], corners[3])
+    # print util.manhattanDistance(corners[3], corners[0])
+    # print util.manhattanDistance(corners[1], corners[3])
+    # print util.manhattanDistance(corners[0], corners[2])
+
+    if h1 and h2 and h3 and h4:
+        return min(h1,h2,h3,h4)+2*maze_height+maze_width
+
+    elif not h1 and h2 and h3 and h4:
+        return min(h2,h3,h4)+maze_height+maze_width
+    elif not h2 and h1 and h3 and h4:
+        return min(h1,h3,h4)+maze_height+maze_width
+    elif not h3 and h1 and h2 and h4:
+        return min(h1,h2,h4)+maze_height+maze_width
+    elif not h4 and h1 and h2 and h3:
+        return min(h1,h2,h3)+maze_height+maze_width
+
+    elif not h1 and not h2 and h3 and h4:
+        return min(h3,h4)+maze_height
+    elif not h3 and not h4 and h1 and h2:
+        return min(h1,h2)+maze_height
+    elif not h1 and not h3 and h2 and h4:
+        return min(h2,h4)+maze_width
+    elif not h2 and not h4 and h1 and h3:
+        return min(h1,h3)+maze_width
+    elif not h1 and not h4 and h2 and h3:
+        return min(h2,h3)+maze_height+maze_width
+    elif not h2 and not h3 and h1 and h4:
+        return min(h1,h4)+maze_height+maze_width
+
+    elif (h1,h2,h3,h4).count(0)==3:
+        return max(h1,h2,h3,h4)
+
+    else:
+        return 0
+
+    #return h1+h2+h3+h4 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
