@@ -61,6 +61,43 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+"*** YOUR CODE HERE ***"
+class pacman_node:
+    problem_ = None
+    explored = dict()
+    def __init__(self, state, parent):
+        self.state = state
+        self.parent = parent
+
+    @staticmethod
+    def set(problem):
+        pacman_node.problem_ = problem
+
+    @staticmethod
+    def unset():
+        pacman_node.problem_ = None
+        pacman_node.explored = dict()
+
+    def getSuccessors(self):
+        child = pacman_node.problem_.getSuccessors(self.state[0])
+        child = [ pacman_node(_, self.state[0]) for _ in child if _[0] not in pacman_node.explored]
+
+        return child
+
+    def add_node_to_explored(self):
+        pacman_node.explored[self.state[0]] = (self.parent, self.state[1])
+
+    def back_trace(self):
+        # find all ancestor backward from this node
+        state = self.state
+        parent = pacman_node.explored[state[0]]
+        actions = list()
+        while parent != (None, None):
+            actions.insert(0, parent[1])
+            state = parent
+            parent = pacman_node.explored[state[0]]
+
+        return actions
 
 def tinyMazeSearch(problem):
     """
@@ -72,7 +109,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
+def depthFirstSearch_v1(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -128,7 +165,7 @@ def depthFirstSearch(problem):
     return action
 
 
-def depthFirstSearch(problem):
+def depthFirstSearch_v2(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -143,7 +180,6 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    from game import Directions
     stack = util.Stack()
     trace = util.Stack()
     explored = set()
@@ -177,10 +213,59 @@ def depthFirstSearch(problem):
     #util.raiseNotDefined()
     return action
 
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    """
+    "*** YOUR CODE HERE ***"
+    pacman_node.set(problem)
+    stack = util.Stack()
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        [stack.push(c) for c in child]
+        node = stack.pop()
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+
+    #util.raiseNotDefined()
+    return action
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacman_node.set(problem)
+    stack = util.Queue()
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        [stack.push(c) for c in child]
+        node = stack.pop()
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+    #util.raiseNotDefined()
+    return action
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
