@@ -69,6 +69,9 @@ class pacman_node:
         self.state = state
         self.parent = parent
 
+    def __str__(self):
+        return str((self.state, self.parent))
+
     @staticmethod
     def set(problem):
         pacman_node.problem_ = problem
@@ -235,7 +238,8 @@ def depthFirstSearch(problem):
     while not problem.isGoalState(node.state[0]):
         node.add_node_to_explored()
         child = node.getSuccessors()
-        [stack.push(c) for c in child]
+        #[stack.push(c) for c in child if c.state[0] not in [_.state[0] for _ in stack.list] ] # BFS
+        [stack.push(c) for c in child] # DFS
         node = stack.pop()
     else:
         node.add_node_to_explored()
@@ -253,11 +257,14 @@ def breadthFirstSearch(problem):
     stack = util.Queue()
     node = pacman_node((problem.getStartState(), None, 0), None)
 
+    x = 0
     while not problem.isGoalState(node.state[0]):
         node.add_node_to_explored()
         child = node.getSuccessors()
-        [stack.push(c) for c in child]
+        [stack.push(c) for c in child if c.state[0] not in [_.state[0] for _ in stack.list] ] # BFS
+        # [stack.push(c) for c in child] # DFS
         node = stack.pop()
+
     else:
         node.add_node_to_explored()
         action = node.back_trace()
