@@ -102,6 +102,59 @@ class pacman_node:
 
         return actions
 
+class pacman_node:
+    problem_ = None
+    explored = dict()
+    def __init__(self, state, parent):
+        self.state = state
+        self.parent = parent
+
+    def __str__(self):
+        return str((self.state, self.parent))
+
+    @staticmethod
+    def set(problem):
+        pacman_node.problem_ = problem
+
+    @staticmethod
+    def unset():
+        pacman_node.problem_ = None
+        pacman_node.explored = dict()
+
+    # for ucs
+    @classmethod
+    def cumulatedCost(cls, node):
+        if node.parent is not None:
+            node.updateState((node.state[0], node.state[1], node.state[2] + node.parent[2]))
+            return node.state[2]
+        else:
+            return 0
+
+    def updateState(self, newState):
+        del self.state
+        self.state = newState
+
+    def getSuccessors(self):
+        child = pacman_node.problem_.getSuccessors(self.state[0])
+        child = [ pacman_node(_, self.state) for _ in child if _[0] not in pacman_node.explored]
+
+        return child
+
+    def add_node_to_explored(self):
+        pacman_node.explored[self.state[0]] = (self.parent, self.state[1])
+
+    def back_trace(self):
+        # find all ancestor backward from this node
+        state = self.state
+        parent = pacman_node.explored[state[0]]
+        actions = list()
+        while parent != (None, None):
+            actions.insert(0, parent[1])
+            state = parent[0]
+            parent = pacman_node.explored[state[0]]
+
+        return actions
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -277,7 +330,25 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    pacman_node.set(problem)
+    stack = util.PriorityQueueWithFunction(pacman_node.cumulatedCost)
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    x = 0
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        [stack.push(c) for c in child if c.state[0] not in [_[2].state[0] for _ in stack.heap] ] # BFS
+        # [stack.push(c) for c in child] # DFS
+        node = stack.pop()
+
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+    return action
 
 def nullHeuristic(state, problem=None):
     """
