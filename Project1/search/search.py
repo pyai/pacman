@@ -102,9 +102,17 @@ class pacman_node:
 
         return actions
 
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
 class pacman_node:
     problem_ = None
     explored = dict()
+    heuristic_ = None
     def __init__(self, state, parent):
         self.state = state
         self.parent = parent
@@ -113,23 +121,28 @@ class pacman_node:
         return str((self.state, self.parent))
 
     @staticmethod
-    def set(problem):
+    def set(problem, heuristic = nullHeuristic):
         pacman_node.problem_ = problem
+        pacman_node.heuristic_ = staticmethod(heuristic)
 
     @staticmethod
     def unset():
         pacman_node.problem_ = None
         pacman_node.explored = dict()
+        pacman_node.heuristic_ = None
+
 
     # for ucs
     @classmethod
-    def cumulatedCost(cls, node):
+    def cost(cls, node):
         if node.parent is not None:
-            node.updateState((node.state[0], node.state[1], node.state[2] + node.parent[2]))
+            g = node.state[2] + node.parent[2]
+            h = pacman_node.heuristic_(node.state[0], cls.problem_)
+            node.updateState((node.state[0], node.state[1], g+h ))
             return node.state[2]
         else:
-            return 0
-
+            return 0 + (pacman_node.heuristic_)(node.state[0], cls.problem_)
+      
     def updateState(self, newState):
         del self.state
         self.state = newState
@@ -299,7 +312,6 @@ def depthFirstSearch(problem):
         action = node.back_trace()
         pacman_node.unset()
 
-
     #util.raiseNotDefined()
     return action
 
@@ -330,9 +342,8 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-
     pacman_node.set(problem)
-    stack = util.PriorityQueueWithFunction(pacman_node.cumulatedCost)
+    stack = util.PriorityQueueWithFunction(pacman_node.cost)
     node = pacman_node((problem.getStartState(), None, 0), None)
 
     x = 0
@@ -360,7 +371,24 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacman_node.set(problem, heuristic)
+    stack = util.PriorityQueueWithFunction(pacman_node.cost)
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    x = 0
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        [stack.push(c) for c in child if c.state[0] not in [_[2].state[0] for _ in stack.heap] ] # BFS
+        # [stack.push(c) for c in child] # DFS
+        node = stack.pop()
+
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+    return action
 
 
 # Abbreviations
