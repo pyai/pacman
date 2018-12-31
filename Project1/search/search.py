@@ -117,8 +117,11 @@ class pacman_node:
         self.state = state
         self.parent = parent
 
-    def __str__(self):
-        return str((self.state, self.parent))
+    #def __str__(self):
+    #    return str((self.state, self.parent))
+
+    def __repr__(self):
+        return "pacman_node({}, {})".format(self.state, self.parent)
 
     @staticmethod
     def set(problem, heuristic = nullHeuristic):
@@ -161,6 +164,71 @@ class pacman_node:
         state = self.state
         parent = pacman_node.explored[state[0]]
         actions = list()
+
+        while parent != (None, None):
+            actions.insert(0, parent[1])
+            state = parent[0]
+            parent = pacman_node.explored[state[0]]
+
+        return actions
+
+class pacman_node:
+    problem_ = None
+    explored = dict()
+    heuristic_ = None
+    def __init__(self, state, parent):
+        self.state = state
+        self.parent = parent
+
+    #def __str__(self):
+    #    return str((self.state, self.parent))
+
+    def __repr__(self):
+        return "pacman_node({}, {})".format(self.state, self.parent)
+
+    @staticmethod
+    def set(problem, heuristic = nullHeuristic):
+        pacman_node.problem_ = problem
+        pacman_node.heuristic_ = staticmethod(heuristic)
+
+    @staticmethod
+    def unset():
+        pacman_node.problem_ = None
+        pacman_node.explored = dict()
+        pacman_node.heuristic_ = None
+
+    # for ucs
+    @classmethod
+    def cost(cls, node):
+        if node.parent is not None:
+            g = node.state[2] + node.parent[2]
+            h = pacman_node.heuristic_(node.state[0], cls.problem_)
+            node.updateState((node.state[0], node.state[1], g))
+            return node.state[2] + h
+        else:
+            return 0 + (pacman_node.heuristic_)(node.state[0], cls.problem_)
+      
+    def updateState(self, newState):
+        del self.state
+        self.state = newState
+
+    def getSuccessors(self):
+        child = pacman_node.problem_.getSuccessors(self.state[0])
+        # just push every thing you get
+        child = [ pacman_node(_, self.state) for _ in child]
+        # child = [ pacman_node(_, self.state) for _ in child if _[0] not in pacman_node.explored]
+
+        return child
+
+    def add_node_to_explored(self):
+        pacman_node.explored[self.state[0]] = (self.parent, self.state[1])
+
+    def back_trace(self):
+        # find all ancestor backward from this node
+        state = self.state
+        parent = pacman_node.explored[state[0]]
+        actions = list()
+
         while parent != (None, None):
             actions.insert(0, parent[1])
             state = parent[0]
@@ -272,7 +340,6 @@ def depthFirstSearch_v2(problem):
             [ stack.push(_) for _ in child ] # push child into stack
             state = stack.pop()
 
-
     else:
         trace.push(state)
         action = [ _[1] for _ in trace.list]
@@ -282,7 +349,7 @@ def depthFirstSearch_v2(problem):
     #util.raiseNotDefined()
     return action
 
-def depthFirstSearch(problem):
+def depthFirstSearch_v3(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -315,7 +382,44 @@ def depthFirstSearch(problem):
     #util.raiseNotDefined()
     return action
 
-def breadthFirstSearch(problem):
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    """
+    "*** YOUR CODE HERE ***"
+    pacman_node.set(problem)
+    stack = util.Stack()
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        #[stack.push(c) for c in child if c.state[0] not in [_.state[0] for _ in stack.list] ] # BFS
+        [stack.push(c) for c in child] # DFS
+
+        node = stack.pop()
+        while node.state[0] in pacman_node.explored:
+            node = stack.pop()
+        
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+    #util.raiseNotDefined()
+    return action
+
+def breadthFirstSearch_v1(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     pacman_node.set(problem)
@@ -327,8 +431,33 @@ def breadthFirstSearch(problem):
         node.add_node_to_explored()
         child = node.getSuccessors()
         [stack.push(c) for c in child if c.state[0] not in [_.state[0] for _ in stack.list] ] # BFS
-        # [stack.push(c) for c in child] # DFS
+        #[stack.push(c) for c in child] # DFS
         node = stack.pop()
+
+    else:
+        node.add_node_to_explored()
+        action = node.back_trace()
+        pacman_node.unset()
+
+    #util.raiseNotDefined()
+    return action
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    pacman_node.set(problem)
+    stack = util.Queue()
+    node = pacman_node((problem.getStartState(), None, 0), None)
+
+    x = 0
+    while not problem.isGoalState(node.state[0]):
+        node.add_node_to_explored()
+        child = node.getSuccessors()
+        #[stack.push(c) for c in child if c.state[0] not in [_.state[0] for _ in stack.list] ] # BFS
+        [stack.push(c) for c in child] # DFS
+        node = stack.pop()
+        while node.state[0] in pacman_node.explored:
+            node = stack.pop()
 
     else:
         node.add_node_to_explored()
@@ -350,9 +479,12 @@ def uniformCostSearch(problem):
     while not problem.isGoalState(node.state[0]):
         node.add_node_to_explored()
         child = node.getSuccessors()
-        [stack.push(c) for c in child if c.state[0] not in [_[2].state[0] for _ in stack.heap] ] # BFS
-        # [stack.push(c) for c in child] # DFS
+        #[stack.push(c) for c in child if c.state[0] not in [_[2].state[0] for _ in stack.heap] ] # BFS
+        [stack.push(c) for c in child] # DFS
         node = stack.pop()
+
+        while node.state[0] in pacman_node.explored:
+            node = stack.pop()
 
     else:
         node.add_node_to_explored()
@@ -379,9 +511,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     while not problem.isGoalState(node.state[0]):
         node.add_node_to_explored()
         child = node.getSuccessors()
-        [stack.push(c) for c in child if c.state[0] not in [_[2].state[0] for _ in stack.heap] ] # BFS
-        # [stack.push(c) for c in child] # DFS
+        [stack.push(c) for c in child] # DFS
         node = stack.pop()
+
+        while node.state[0] in pacman_node.explored:
+            node = stack.pop()
 
     else:
         node.add_node_to_explored()
