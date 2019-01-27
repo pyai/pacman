@@ -439,12 +439,9 @@ def cornersHeuristic(state, problem):
         elif b or c:
             h += min((distance[corners[0]], distance[corners[3]])) + (width-1) + (height-1)
     elif foods == 2:
-        if (a and b) or (c and d):
-            h += min([distance[_] for _ in corners if not abcd[_]]) + (height-1)
-        elif (b and d) or (a and c):
-            h += min([distance[_] for _ in corners if not abcd[_]]) + (width-1)
-        else: # (b and c) or (a and d)
-            h += min([distance[_] for _ in corners if not abcd[_]]) + (width-1) + (height-1)
+        _1, _2 = [ _ for _ in corners if not abcd[_]]
+        h += min([distance[_] for _ in corners if not abcd[_]])
+        h += abs(_1[0] - _2[0]) + abs(_1[1] - _2[1])
     elif foods == 1:
         h += min([distance[_] for _ in corners if not abcd[_]])
 
@@ -542,7 +539,113 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    foods = list()
+    height = foodGrid.height
+    width = foodGrid.width
+    for x in range(width):
+        for y in range(height):
+            if foodGrid[x][y]:
+                foods.append((x, y))
+
+    # get connections
+    food_edge = list()
+    for i, f1 in enumerate(foods):
+        for j, f2 in enumerate(foods):
+            if adjacent(f1, f2):
+                food_edge.append((f1, f2))
+
+    # get adjacentlist
+    food_adj = dict()
+    for f in foods:
+        a = set()
+        for e in food_edge:
+            if f == e[0]:
+                a.add(e[1])
+            elif f == e[1]:
+                a.add(e[0])
+        food_adj[f] = copy.deepcopy(list(a))
+
+    # get connected components
+    food_cc = list()
+    for f in foods:
+        explored = set()
+        stack = util.Stack()
+        stack.push(f)
+        while not stack.isEmpty():
+            node = stack.pop()
+            explored.add(node)
+            [stack.push(_) for _ in food_adj[node] if _ not in explored]
+        else:
+            if explored not in food_cc:
+                food_cc.append(explored)
+
+
+    # get manhattan distance between connected components
+    pacman_cloest = 0
+    min_manhatan = dict()
+    for i, cc1 in enumerate(food_cc):
+        m = float("Inf") 
+        for j, cc2 in enumerate(food_cc):
+            if i != j:
+                for _1 in cc1:
+                    for _2 in cc2:
+                        if manhattan(_1, _2) < m:
+                            m = manhattan(_1, _2)
+        min_manhatan[tuple(cc1)] = m
+
+
+
+
+
+
+
+    #print "foods:", foods
+    #print "food_edge:", food_edge
+    #print "food_adj:", food_adj
+    #print "food_cc:", food_cc
+    #print "min_manhatan:", min_manhatan
+    #print "len(foods) + sum(min_manhatan.values()):", len(foods) + sum(min_manhatan.values())
+
+    #print "========="
+    #print problem.walls
+    #print "........"
+    #print foodGrid
+    #print "========="
+
+    #while True:
+    #    pass
+    if min_manhatan:   
+        return len(foods) + sum(list(min_manhatan.values()) ) - min(list(min_manhatan.values())) - len(min_manhatan)
+    else:
+        return len(foods) + sum(list(min_manhatan.values()) )
+
+def foodHeuristic(state, problem):
+    position, foodGrid = state
+    "*** YOUR CODE HERE ***"
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    foods = list()
+    height = foodGrid.height
+    width = foodGrid.width
+    for x in range(width):
+        for y in range(height):
+            if foodGrid[x][y]:
+                foods.append((x, y))
+    return len(foods)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
