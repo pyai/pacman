@@ -33,6 +33,7 @@ description for details.
 
 Good luck and happy searching!
 """
+from __future__ import division
 
 from game import Directions
 from game import Agent
@@ -547,13 +548,7 @@ def foodHeuristic(state, problem):
         # if manhattan adjacent then return True, otherwise False
         return manhattan(a, b) == 1
 
-    foods = list()
-    height = foodGrid.height
-    width = foodGrid.width
-    for x in range(width):
-        for y in range(height):
-            if foodGrid[x][y]:
-                foods.append((x, y))
+    foods = foodGrid.asList()
 
     # get connections
     food_edge = list()
@@ -639,13 +634,500 @@ def foodHeuristic(state, problem):
         return manhattan(a, b) == 1
 
     foods = list()
+    foods = foodGrid.asList()
+
+    return len(foods)
+
+def foodHeuristic(state, problem):
+    position, foodGrid = state
+    "*** YOUR CODE HERE ***"
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    foods = foodGrid.asList()
+    foods.append(position)
+    foodn = len(foods)
+
+    # adjacent matrix
+    adj = [[None,]*foodn for i in range(foodn)]
+    for i, f1 in enumerate(foods):
+        for j, f2 in enumerate(foods):
+            if i ==j:
+                adj[i][j] = 0
+            else:
+                adj[i][j] = manhattan(f1, f2)
+
+
+    # start from 0
+    walked = list()
+    i = 0
+    walked.append(i)
+
+    cost = 0
+    while len(walked) < foodn:
+        row = [ 9999999999999 if j in walked else f for j, f in enumerate(adj[i])  ]
+        cost += min(row)
+        i = row.index(min(row))
+        walked.append(i)
+
+    #print "adj:", adj
+    #print "cost:", cost
+
+    return cost
+
+
+def foodHeuristic(state, problem):
+    position, foodGrid = state
+    "*** YOUR CODE HERE ***"
+    #print "foodGrid.asList():", foodGrid.asList()
+    source = position
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def euclidean(a, b):
+        return ((a[0]-b[0])**2 + (a[1]-b[1])**2)**0.5
+
+    def distance(a, b):
+        return manhattan(a, b)
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    foods = list()
+    
+    #height = foodGrid.height
+    #width = foodGrid.width
+    q1, q2, q3, q4 = list(), list(), list(), list()
+    foods = foodGrid.asList()
+    foods.append(source)
+    for f in foods:
+        x, y = f
+        if (x, y) == source:
+            continue
+        elif x >= position[0] and y > position[1]:
+            q1.append((x, y))
+        elif x < position[0] and y >= position[1]:
+            q2.append((x, y))
+        elif x <= position[0] and y < position[1]:
+            q3.append((x,y))
+        else:
+            q4.append((x,y))
+
+    
+    foodn = len(foods)
+
+
+    if foodn == 1:
+        return 0
+
+    adj = dict()
+    for f1 in foods:
+        for f2 in foods:
+            if f1 not in adj:
+                adj[f1] = dict()
+
+            # ignore
+            if f1 == f2:
+                continue
+            else:
+                (adj[f1])[f2] = distance(f1, f2)
+
+    #nbr = dict()
+    #for f1 in foods:
+    #    for f2 in foods:
+    #        if f1 not in nbr:
+    #            nbr[f1] = dict()
+#
+    #        # ignore
+    #        if manhattan(f1, f2) == 1:
+    #            if f2 not in nbr[f1]:
+    #                (nbr[f1])[f2] = dict()
+    #            else:
+    #                (nbr[f1])[f2] = (nbr[f1])[f2] + 1
+
+    qcost = list()
+    qwalk = list()
+    for q in (q1, q2, q3, q4):
+        this = source
+        cost = 0
+        walked = [source]
+        while len(walked) < len(q)+1:
+            mk = None
+            mv = float('inf')
+
+            for k, v in adj[this].items():
+                if k in q and k not in walked and v < mv:
+                    mk, mv = k, v
+
+            # break even
+            ks = [k for k, v in adj[this].items() if v == mv and k in q ]
+
+            print "ks:", ks
+            #n = float('inf')
+            #for k in ks:
+            #    if k in nbr[this]:
+            #        if (nbr[this])[k] < n:
+            #            mk, n = k, (nbr[this])[k]
+            
+
+            cost += mv
+            this = mk
+            walked.append(this)
+
+        if cost == 0:
+            cost = float('inf')
+
+        qwalk.append(walked)
+        qcost.append(cost)
+
+
+    this = qwalk[ qcost.index(min(qcost)) ][1]
+    #print "this:", this
+    cost = (adj[source])[this]
+    walked = [source, this]
+    while len(walked) < len(foods):
+        mk = None
+        mv = float('inf')
+        for k, v in adj[this].items():
+            if k not in walked and v < mv:
+                mk, mv = k, v
+
+        cost += mv
+        this = mk
+        walked.append(this)
+
+    print "source:", source
+    print "walked:", walked
+    print "cost:", cost
+
+    return cost
+
+
+def foodHeuristic(state, problem):
+    position, foodGrid = state
+    "*** YOUR CODE HERE ***"
+    #print "foodGrid.asList():", foodGrid.asList()
+    source = (1, position, (position, ))
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def euclidean(a, b):
+        return ((a[0]-b[0])**2 + (a[1]-b[1])**2)**0.5
+
+    def distance(a, b):
+        return manhattan(a, b)
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    foods = list()
+    
+    q1, q2, q3, q4 = list(), list(), list(), list()
+    foods = foodGrid.asList()
+    foodn = len(foods)
+
+    if foodn == 0:
+        return 0
+
+    food_edge = list()
+
+    if len(foods) >1:
+        for f1 in foods:
+            for f2 in foods:
+                if adjacent(f1, f2):
+                    food_edge.append((f1, f2))
+    else:
+        food_edge.append((foods[0], foods[0]))
+
+    # get adjacentlist
+    food_adj = dict()
+    for f in foods:
+        if f not in food_adj: 
+            a = set()
+        else:
+            a = set(food_adj[f])
+
+        for e in food_edge:
+            if f in e:
+                a.add(e[0])
+                a.add(e[1])
+
+        food_adj[f] = copy.deepcopy(list(a))
+
+    # get connected components
+    def center(l):
+        xsum, ysum = 0, 0
+        for x, y in l:
+            xsum += x
+            ysum += y
+        else:
+            xmean = xsum/len(l)
+            ymean = ysum/len(l)
+        
+        return (xmean, ymean)
+
+
+    # get connected components
+    food_cc = list()
+    for f in foods:
+        explored = set()
+        stack = util.Stack()
+        stack.push(f)
+        while not stack.isEmpty():
+            node = stack.pop()
+            explored.add(node)
+            [stack.push(_) for _ in food_adj[node] if _ not in explored]
+        else:
+            if explored not in food_cc:
+                food_cc.append(explored)
+
+    food_cc2 = [source, ]
+    for fc in food_cc:
+        food_cc2.append((len(fc), center(fc), tuple(fc) ))
+
+
+    adj = dict()
+    for f1 in food_cc2:
+        for f2 in food_cc2:
+            if f1 not in adj:
+                adj[f1] = dict()
+
+            # ignore
+            if f1 == f2:
+                continue
+            else:
+                (adj[f1])[f2] = distance(f1[1], f2[1])
+
+
+    for f in food_cc2:
+        x, y = f[1]
+        sourcex, sourcey = source[1]
+        if (x, y) == position:
+            continue
+        elif x >= sourcex and y > sourcey:
+            q1.append(f)
+        elif x < sourcex and y >= sourcey:
+            q2.append(f)
+        elif x <= sourcex and y < sourcey:
+            q3.append(f)
+        else:
+            q4.append(f)
+
+    def direction(a, b):
+        # a is news related to b
+        news = set()
+        if a[0] < b[0]:
+            news.add('w')
+        elif a[0] > b[0]:
+            news.add('e')
+
+        if a[1] < b[1]:
+            news.add('s')
+        elif a[1] > b[1]:
+            news.add('n')
+
+        return news
+
+    def estimate_cc_cost(start, end):
+        news = direction(end, start)
+        center = end[1]
+        cost = 0
+        for p in end[2]:
+            if news & direction(p, center):
+                cost += 1 if distance(p, center) > 1 else 0
+        return cost
+
+
+    qcost = list()
+    qwalk = list()
+    for q in (q1, q2, q3, q4):
+        this = source
+        cost = 0
+        walked = [source, ]
+        while len(walked) < len(q)+1:
+            mk = None
+            mv = float('inf')
+
+            for k, v in adj[this].items():
+                if k in q and k not in walked:
+                    if v + estimate_cc_cost(this, k) < mv:
+                        mk = k
+                        mv = v + estimate_cc_cost(this, k)
+
+
+            cost += mv
+            this = mk
+            walked.append(this)
+
+        if cost == 0:
+            cost = float('inf')
+
+        qwalk.append(walked)
+        qcost.append(cost)
+
+
+    this = qwalk[ qcost.index(min(qcost)) ][1]
+    cost = (adj[source ])[this] 
+    walked = [source, this]
+    while len(walked) < len(food_cc2):
+        mk = None
+        mv = float('inf')
+        for k, v in adj[this].items():
+            if k not in walked:
+                if v + estimate_cc_cost(this, k) < mv:
+                    mk = k
+                    mv = v + estimate_cc_cost(this, k)
+
+
+        cost = cost + mv
+        this = mk
+        walked.append(this)
+
+
+    return cost
+
+
+
+
+mask_array = None
+def gen_mask_array(n):
+    print "start gen_mask_array with", n, "bits"
+    global mask_array
+
+    if mask_array is None:
+        mask_array = dict()
+        for i in range(2**n):
+            pattern = ("{:0>"+str(n)+"}").format( str(bin(i))[2:] )
+            if pattern.count('1') not in mask_array:
+                mask_array[pattern.count('1')] = list()
+
+            mask_array[pattern.count('1')].append(pattern)
+    print "end gen_mask_array"  
+
+
+def foodHeuristic_bellman_karp(state, problem):
+    """
+    Your heuristic for the FoodSearchProblem goes here.
+
+    This heuristic must be consistent to ensure correctness.  First, try to come
+    up with an admissible heuristic; almost all admissible heuristics will be
+    consistent as well.
+
+    If using A* ever finds a solution that is worse uniform cost search finds,
+    your heuristic is *not* consistent, and probably not admissible!  On the
+    other hand, inadmissible or inconsistent heuristics may find optimal
+    solutions, so be careful.
+
+    The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
+    (see game.py) of either True or False. You can call foodGrid.asList() to get
+    a list of food coordinates instead.
+
+    If you want access to info like walls, capsules, etc., you can query the
+    problem.  For example, problem.walls gives you a Grid of where the walls
+    are.
+
+    If you want to *store* information to be reused in other calls to the
+    heuristic, there is a dictionary called problem.heuristicInfo that you can
+    use. For example, if you only want to count the walls once and store that
+    value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
+    Subsequent calls to this heuristic can access
+    problem.heuristicInfo['wallCount']
+    """
+    position, foodGrid = state
+    "*** YOUR CODE HERE ***"
+    source = position
+    import copy
+    def manhattan(a, b):
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+    def adjacent(a, b):
+        # if manhattan adjacent then return True, otherwise False
+        return manhattan(a, b) == 1
+
+    def mask_select(item, mask):
+        return [ i for i, m in zip(item, mask) if m]
+
+    foods = list()
+    #foods.append(source)
     height = foodGrid.height
     width = foodGrid.width
+
     for x in range(width):
         for y in range(height):
             if foodGrid[x][y]:
                 foods.append((x, y))
-    return len(foods)
+
+    foodn = len(foods)
+    import time
+    sta = time.time()
+    gen_mask_array(foodn)
+    end = time.time()
+    print "time:", end - sta
+
+    # adjacent matrix
+    adj = [[None,]*foodn for i in range(foodn)]
+    for i, f1 in enumerate(foods):
+        for j, f2 in enumerate(foods):
+            if i ==j:
+                adj[i][j] = 0
+            else:
+                adj[i][j] = manhattan(f1, f2)
+
+    #source_to_adj = [manhattan(source, f) for f in foods] # position to 0, 1, ... foodn -1
+
+    print "adj:", adj
+
+    memory = list() # a list of dict
+
+    print 'source:', source, 'foods:', foods
+    print 'foodn:', foodn
+    #import itertools
+
+
+    # print "mask_array:", mask_array
+    for i in range(foodn):
+        masks = mask_array[i]
+        print "i =", i
+        #print "masks:", masks
+
+        memory.append(dict())
+        for m in masks:
+            mask = [ True if _ =='1' else False for _ in list(m)]
+            food_subset = mask_select(foods, mask)
+
+            mint = int(''.join(m), base=2)
+
+            food_rest = set(foods) - set(food_subset)
+            for r in food_rest:
+                if mint == 0:
+                    (memory[i])[(r, mint)] = manhattan(source, r)
+                else:
+                    (memory[i])[(r, mint)] = min([ manhattan(r, key[0]) + value for key, value in (memory[i-1]).items() if key[0] != r])
+                     
+
+
+
+    end = time.time()
+    print "time:", end - sta
+
+    return 0 if foodn == 0 else min(memory[foodn-1].values())
+
+
+
+
+
+         
+
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
